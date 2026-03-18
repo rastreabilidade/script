@@ -1,0 +1,66 @@
+# Questórios – Scripts
+
+This directory contains Python scripts used for processing and analyzing data for the **Questórios** project.
+
+## Requirements
+
+- Python 3.13+
+- [`uv`](https://docs.astral.sh/uv/) as the Python package and environment manager
+
+## Setup with `uv`
+
+1. **Clone the repository** (if you haven’t already):
+
+   ```bash
+   git clone https://github.com/rastreabilidade/script.git
+   cd script
+   ```
+
+2. **Create and sync the environment**  
+   If you already have a `pyproject.toml` `uv` will pick it up automatically:
+
+   ```bash
+   uv sync
+   ```
+
+   This will:
+   - Create a virtual environment (by default under `.venv` or as configured)
+   - Install all dependencies
+
+3. **Run scripts via `uv run`**
+
+   ```bash
+   uv run python main.py
+   ```
+
+   Or, for the test script for the old version:
+
+   ```bash
+   uv run python test.py
+   ```
+
+   Note that `uv run` will always run the script in the current directory.
+
+   you can ativate the environment with `source .venv/bin/activate`
+
+   ```bash
+   source .venv/bin/activate
+   ```
+
+   and deactivate with `deactivate`
+
+   ```bash
+   deactivate
+   ```
+
+## Project structure (simplified)
+
+- `main.py` – main entry point for data processing / analysis.
+- `test.py` – auxiliary or exploratory script for testing logic.
+- `*.csv`, `*.xlsx` – input datasets for the Peconheiros 2026 analyses.
+
+### Contributing / Modifying
+
+- Update file paths and parameters inside `main.py` to point to the correct data sources.
+- Keep scripts idempotent and well-logged so processing steps are reproducible.
+- If you add new dependencies, also update your `pyproject.toml` / `requirements.txt` so `uv sync` stays accurate.
