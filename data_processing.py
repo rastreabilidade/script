@@ -8,8 +8,8 @@ from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 
 # 1. Configurações Iniciais
-caminho_arquivo_entrada = 'Mapa final - Castanhal - Produtores (editando).xlsx' # Mude para o nome do arquivo original
-caminho_arquivo_saida = 'Mapa3.xlsx' # Nome do arquivo que será salvo
+caminho_arquivo_entrada = 'Mapa final - Castanhal - Produtores.xlsx' # Mude para o nome do arquivo original
+caminho_arquivo_saida = 'Testefinal.xlsx' # Nome do arquivo que será salvo
 limite_caracteres_titulo = 75 # Limite de letras no título antes de quebrar a linha
 
 # Lista para guardar o nome das imagens temporárias e apagá-las no final
@@ -90,60 +90,60 @@ try:
                 pctdistance=0.75
             )
 
-            # --- 3.2 O "IF" PARA JOGAR AS FATIAS PEQUENAS PARA FORA ---
-            kw = dict(arrowprops=dict(arrowstyle="-", color="black", lw=0.6), zorder=0, va="center")
-
-            prev_y_left = None
-            prev_y_right = None
-            espacamento_minimo = 0.08 
-
+ # --- 3.2 Rótulos externos ao redor da pizza ---
             for i, p in enumerate(wedges):
                 valor = dados_grafico['Quantidade'].iloc[i]
                 pct = (valor / total) * 100
-                
+
                 if pct <= limite_percentual:
-                    ang = (p.theta2 - p.theta1) / 2. + p.theta1
-                    y = np.sin(np.deg2rad(ang))
+                    ang = (p.theta2 - p.theta1) / 2.0 + p.theta1
+
                     x = np.cos(np.deg2rad(ang))
-                    
-                    lado = int(np.sign(x)) if x != 0 else 1
-                    horizontalalignment = {-1: "right", 1: "left"}[lado]
-                    texto_fora = f"{pct:.1f}%"
-                    
-                    y_text = 1.1 * y 
-                    
-                    if lado == -1: # Lado Esquerdo
-                        if prev_y_left is not None and y_text > prev_y_left - espacamento_minimo:
-                            y_text = prev_y_left - espacamento_minimo
-                        prev_y_left = y_text
-                    else: # Lado Direito
-                        if prev_y_right is not None and y_text < prev_y_right + espacamento_minimo:
-                            y_text = prev_y_right + espacamento_minimo
-                        prev_y_right = y_text
-                    
-                    ax.annotate(texto_fora, xy=(1.0 * x, 1.0 * y), xytext=(1.25 * lado, y_text),
-                                horizontalalignment=horizontalalignment, fontsize=9, **kw)
+                    y = np.sin(np.deg2rad(ang))
 
-            # --- CRIANDO A LEGENDA LATERAL ORGANIZADA ---
-            # Conta quantas respostas existem no total
+                    # ponto onde a linha sai da pizza
+                    x_seta = 1.00 * x
+                    y_seta = 1.00 * y
+
+                    # texto um pouco mais para fora, na mesma direção
+                    x_text = 1.25 * x
+                    y_text = 1.25 * y
+
+                    ha = "left" if x >= 0 else "right"
+
+                    ax.annotate(
+                        f"{pct:.1f}%",
+                        xy=(x_seta, y_seta),
+                        xytext=(x_text, y_text),
+                        horizontalalignment=ha,
+                        fontsize=9,
+                        va="center",
+                        arrowprops=dict(
+                            arrowstyle="-",
+                            color="black",
+                            lw=0.6
+                        )
+                    )
+
+
+            # --- LEGENDA LATERAL ORGANIZADA ---
             numero_de_respostas = len(dados_grafico)
-
-            # Define o limite de quantos itens cabem em uma única coluna verticalmente
             max_por_coluna = 40
-            # Calcula automaticamente o número de colunas necessário
             colunas_dinamicas = (numero_de_respostas - 1) // max_por_coluna + 1
 
-            # Aplica o número de colunas calculado no 'ncol'
-            ax.legend(wedges, dados_grafico.index,
-                      loc="center left",
-                      bbox_to_anchor=(1.15, 0.5), 
-                      frameon=False,           
-                      fontsize=9,
-                      ncol=colunas_dinamicas)
+            ax.legend(
+                wedges,
+                dados_grafico.index,
+                loc="center left",
+                bbox_to_anchor=(1.15, 0.5),
+                frameon=False,
+                fontsize=9,
+                ncol=colunas_dinamicas
+            )
 
             # --- TÍTULO DO GRÁFICO ---
             titulo_formatado = textwrap.fill(str(nome_coluna_alvo), width=limite_caracteres_titulo)
-            ax.set_title(titulo_formatado, fontsize=12, pad=20)
+            ax.set_title(titulo_formatado, fontsize=12, pad=35)
 
             # Salva imagem temporária
             caminho_img = f'temp_grafico_{len(nomes_abas_usados)}.png'
