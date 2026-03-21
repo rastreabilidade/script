@@ -155,38 +155,77 @@ try:
             print(f"Gráfico de pizza salvo em: {caminho_img_pizza}")
 
             # =========================
-            # 4. GRÁFICO DE BARRAS
+            # 4. GRÁFICO DE BARRAS AUTOMÁTICO
             # =========================
             print("Criando gráfico de barras...")
 
-            fig_barra, ax_barra = plt.subplots(figsize=(16, 8))
-
-            categorias = [textwrap.fill(str(i), width=20) for i in dados_grafico.index]
+            categorias_originais = [str(i) for i in dados_grafico.index]
             valores = dados_grafico['%'].values
 
-            # barras mais juntas e relativamente finas
-            x = np.arange(len(categorias)) * 0.35
-            barras = ax_barra.bar(x, valores, width=0.23)
+            maior_legenda = max(len(c) for c in categorias_originais) if categorias_originais else 0
+            quantidade_categorias = len(categorias_originais)
 
-            ax_barra.set_title(titulo_formatado, fontsize=12, pad=20)
-            ax_barra.set_ylabel("Porcentagem (%)")
-            ax_barra.set_xlabel("Respostas")
-            ax_barra.set_ylim(0, 100)
+            usar_horizontal = (maior_legenda > 20) or (quantidade_categorias > 10)
 
-            ax_barra.set_xticks(x)
-            ax_barra.set_xticklabels(categorias, rotation=45)
+            if usar_horizontal:
+                print("Modo escolhido: gráfico de barras horizontal")
 
-            for barra in barras:
-                altura = barra.get_height()
-                ax_barra.annotate(
-                    f'{altura:.1f}%',
-                    xy=(barra.get_x() + barra.get_width() / 2, altura),
-                    xytext=(0, 3),
-                    textcoords="offset points",
-                    ha='center',
-                    va='bottom',
-                    fontsize=8
-                )
+                fig_barra, ax_barra = plt.subplots(figsize=(16, max(8, quantidade_categorias * 0.6)))
+
+                categorias = [textwrap.fill(c, width=35) for c in categorias_originais]
+                y = np.arange(len(categorias))
+
+                barras = ax_barra.barh(y, valores, height=0.55)
+
+                ax_barra.set_title(titulo_formatado, fontsize=12, pad=20)
+                ax_barra.set_xlabel("Porcentagem (%)")
+                ax_barra.set_ylabel("Respostas")
+                ax_barra.set_xlim(0, 100)
+
+                ax_barra.set_yticks(y)
+                ax_barra.set_yticklabels(categorias)
+                ax_barra.invert_yaxis()
+
+                for barra in barras:
+                    largura = barra.get_width()
+                    ax_barra.annotate(
+                        f'{largura:.1f}%',
+                        xy=(largura, barra.get_y() + barra.get_height() / 2),
+                        xytext=(4, 0),
+                        textcoords="offset points",
+                        ha='left',
+                        va='center',
+                        fontsize=8
+                    )
+
+            else:
+                print("Modo escolhido: gráfico de barras vertical")
+
+                fig_barra, ax_barra = plt.subplots(figsize=(16, 8))
+
+                categorias = [textwrap.fill(c, width=20) for c in categorias_originais]
+                x = np.arange(len(categorias)) * 0.35
+                barras = ax_barra.bar(x, valores, width=0.23)
+
+                ax_barra.set_title(titulo_formatado, fontsize=12, pad=20)
+                ax_barra.set_ylabel("Porcentagem (%)")
+                ax_barra.set_xlabel("Respostas")
+                ax_barra.set_ylim(0, 100)
+
+                ax_barra.set_xticks(x)
+                ax_barra.set_xticklabels(categorias, rotation=45, ha='right')
+
+                for barra in barras:
+                    altura = barra.get_height()
+                    ax_barra.annotate(
+                        f'{altura:.1f}%',
+                        xy=(barra.get_x() + barra.get_width() / 2, altura),
+                        xytext=(0, 3),
+                        textcoords="offset points",
+                        ha='center',
+                        va='bottom',
+                        fontsize=8
+                    )
 
             fig_barra.tight_layout()
 
