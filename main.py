@@ -50,9 +50,12 @@ def create_excel_tables_all_columns(input_csv, output_excel):
         df = pd.read_csv(input_csv, encoding='utf-8')
     except UnicodeDecodeError:
         df = pd.read_csv(input_csv, encoding='latin-1')
+    
+    grouped_columns_names = ['1º Lugar', '2º Lugar', '3º Lugar', '4º Lugar']
 
     grouped_columns = {}
     standalone_columns = []
+    standalone_columns_needed_to_be_grouped = {}
     
     # Separate grouped question columns from standalone columns
     for column in df.columns:
@@ -60,6 +63,8 @@ def create_excel_tables_all_columns(input_csv, output_excel):
         if is_question_column(column):
             base_question = extract_question_base(column)
             grouped_columns.setdefault(base_question, []).append(column)
+        elif column in grouped_columns_names:
+            standalone_columns_needed_to_be_grouped.setdefault('2. lugar', []).append(column)
         else:
             standalone_columns.append(column)
 
@@ -80,6 +85,21 @@ def create_excel_tables_all_columns(input_csv, output_excel):
                     col_df[column].astype(str).map(len).max() if not col_df[column].empty else 0
                 )
                 worksheet.set_column(0, 0, min(max_len + 2, 50))
+            
+        for question, columns in standalone_columns_needed_to_be_grouped.items():
+            group_df = df[columns].dropna(how='all')
+
+            if not group_df.empty:
+                sheet_name = unique_sheet_name(question, used_sheet_names)
+                group_df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+                worksheet = writer.sheets[sheet_name]
+                for i, col in enumerate(group_df.columns):
+                    max_len = max(
+                        len(str(col)),
+                        group_df[col].astype(str).map(len).max() if not group_df[col].empty else 0
+                    )
+                worksheet.set_column(i, i, min(max_len + 2, 50))
 
         # 2) Write grouped question tabs
         for question, columns in grouped_columns.items():
@@ -101,8 +121,8 @@ def create_excel_tables_all_columns(input_csv, output_excel):
 
 
 # Configurações
-input_csv = "1.csv"
-output_excel = "teste1.xlsx"
+input_csv = "Abaetetuba_Produtores.csv"
+output_excel = "Abaetetuba_Produtores.xlsx"
 
 # Executar
 if os.path.exists(input_csv):
