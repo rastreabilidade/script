@@ -101,8 +101,8 @@ def create_excel_tables_all_columns(input_csv, output_excel):
 
 
 # Configurações
-input_csv = "Peconheiros_2026_RMB.csv"
-output_excel = "Mapa final - RMB - Peconheiros.xlsx"
+input_csv = "1.csv"
+output_excel = "teste1.xlsx"
 
 # Executar
 if os.path.exists(input_csv):
